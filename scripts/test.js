@@ -4,6 +4,8 @@ import { attack } from "scripts/attack";
 
 /** @param {import(".").NS } ns */
 export async function main(ns) {
+  const hackTarget = ns.args[0];
+
   printHelloWorld(ns);
 
   // find all servers
@@ -33,7 +35,6 @@ export async function main(ns) {
   // copy script to all hacked servers
   // then execute script on all hacked servers
   const scriptName = "hack.js";
-  const hackTarget = "joesguns";
   for (let i = 0; i < hackedServers.length; i++) {
     let target = hackedServers[i];
     await ns.scp(scriptName, "home", target);

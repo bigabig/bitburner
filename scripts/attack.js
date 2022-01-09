@@ -34,9 +34,7 @@ export function attack(ns, target) {
     }
     return true;
   } else {
-    ns.tprint(
-      `Cannot gain root access to ${target}. Required Ports: ${requiredOpenPorts} vs. Open Ports: ${openPorts}`
-    );
+    ns.tprint(`Cannot gain root access to ${target}. Required Ports: ${requiredOpenPorts} vs. Open Ports: ${openPorts}`);
     return false;
   }
 }

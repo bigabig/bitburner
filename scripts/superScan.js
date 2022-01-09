@@ -1,4 +1,9 @@
 /** @param {import(".").NS } ns */
+export function printHelloWorld(ns) {
+  ns.tprint("Hello World! :)");
+}
+
+/** @param {import(".").NS } ns */
 export function superScan(ns) {
   let foundServers = [];
 

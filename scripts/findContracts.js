@@ -62,9 +62,6 @@ export async function main(ns) {
       removeCharacters(input, depth);
       depth += 1;
     }
-
-    ns.tprint("Depth: " + depth);
-
     return Array.from(solutions);
   };
 
@@ -141,7 +138,34 @@ export async function main(ns) {
     return Math.min(...solutions);
   };
 
-  const mergeOverlappingIntervals = function (data) {
+  const uniquePaths = function (input) {
+    let solutions = [];
+
+    const path = function (currentX, currentY, goalX, goalY, currentPath) {
+      if (currentX == goalX && currentY == goalY) {
+        solutions.push(currentPath);
+      } else if (currentX <= goalX && currentY <= goalY) {
+        let newPath = Array.from(currentPath);
+        newPath.push([currentX + 1, currentY]);
+        path(currentX + 1, currentY, goalX, goalY, newPath);
+
+        let newPath2 = Array.from(currentPath);
+        newPath2.push([currentX, currentY + 1]);
+        path(currentX, currentY + 1, goalX, goalY, newPath2);
+      }
+    };
+
+    path(0, 0, input[0] - 1, input[1] - 1, [[0, 0]]);
+
+    let result = solutions.map((x) => {
+      let temp = x.map((y) => y[0] + "," + y[1]);
+      return temp.join("->");
+    });
+
+    return Array.from(new Set(result)).length;
+  };
+
+  const mergeOverlappingIntervals = function (inputData) {
     const checkOverlap = function (interval1, interval2) {
       return Math.max(interval1[0], interval2[0]) <= Math.min(interval1[1], interval2[1]);
     };
@@ -150,52 +174,136 @@ export async function main(ns) {
       return [Math.min(interval1[0], interval2[0]), Math.max(interval1[1], interval2[1])];
     };
 
-    let sortedData = data.sort((a, b) => b[0] - a[0]);
-    let intervals = [sortedData[0]];
-    for (let i = 1; i < sortedData.length; i++) {
-      let interval1 = sortedData[i];
+    const superFunction = function (data) {
+      let hasMerged = false;
+      let newList = Array.from(data);
+      for (let i = 0; i < data.length; i++) {
+        let interval1 = data[i];
+        for (let j = 0; j < data.length; j++) {
+          if (i == j) {
+            continue;
+          }
+          let interval2 = data[j];
+          if (checkOverlap(interval1, interval2)) {
+            let mergedInterval = mergeIntervals(interval1, interval2);
+            newList.splice(i, 1, mergedInterval);
+            newList.splice(j, 1);
+            hasMerged = true;
+            break;
+          }
+        }
+        if (hasMerged) {
+          break;
+        }
+      }
+      if (hasMerged) {
+        return superFunction(newList);
+      } else {
+        return newList;
+      }
+    };
 
-      let hasOverlap = false;
-      for (let j = 0; j < intervals.length; j++) {
-        let interval2 = intervals[j];
+    return superFunction(inputData).sort((a, b) => a[0] - b[0]);
+  };
 
-        if (checkOverlap(interval1, interval2)) {
-          let newInterval = mergeIntervals(interval1, interval2);
-          intervals[j] = newInterval;
-          hasOverlap = true;
+  const spiralizeMatrix = function (data) {
+    let solution = [];
+    let height = data.length;
+    let width = data[0].length;
+    let steps = height * width;
+
+    let currentStep = 0;
+    let moveDir = 0;
+
+    // [minX, minY, maxX, maxY]
+    let minX = 0;
+    let maxX = width - 1;
+    let minY = 0;
+    let maxY = height - 1;
+
+    while (currentStep < steps) {
+      // right
+      if (moveDir == 0) {
+        for (let i = minX; i <= maxX; i++) {
+          solution.push(data[minY][i]);
+          currentStep++;
+        }
+        minY += 1;
+        moveDir = 1;
+
+        // down
+      } else if (moveDir == 1) {
+        for (let i = minY; i <= maxY; i++) {
+          solution.push(data[i][maxX]);
+          currentStep++;
+        }
+        maxX -= 1;
+        moveDir = 2;
+
+        // left
+      } else if (moveDir == 2) {
+        for (let i = maxX; i >= minX; i--) {
+          solution.push(data[maxY][i]);
+          currentStep++;
+        }
+        maxY -= 1;
+        moveDir = 3;
+
+        // up
+      } else if (moveDir == 3) {
+        for (let i = maxY; i >= minY; i--) {
+          solution.push(data[i][minX]);
+          currentStep++;
+        }
+        minX += 1;
+        moveDir = 0;
+      }
+    }
+    return solution;
+  };
+
+  const generateIPAddresses = function (data) {
+    let solutions = [];
+
+    const isValidIP = function (text) {
+      let groups = text.split(".");
+      for (let i = 0; i < groups.length; i++) {
+        let group = groups[i];
+        if (group.startsWith("0")) {
+          return false;
         }
       }
 
-      if (!hasOverlap) {
-        intervals.push(interval1);
+      groups = groups.map((group) => parseInt(group));
+      for (let i = 0; i < groups.length; i++) {
+        let group = groups[i];
+        if (group > 255) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    for (let a = 1; a < data.length - 3; a++) {
+      for (let b = a + 1; b < data.length - 2; b++) {
+        for (let c = b + 1; c < data.length - 1; c++) {
+          let ip = data.slice(0, a) + "." + data.slice(a, b) + "." + data.slice(b, c) + "." + data.slice(c, data.length);
+          if (isValidIP(ip)) {
+            solutions.push(ip);
+          }
+        }
       }
     }
 
-    ns.tprint(intervals);
+    return solutions;
   };
 
-  mergeOverlappingIntervals([
-    [7, 13],
-    [8, 9],
-    [5, 6],
-    [21, 29],
-    [20, 24],
-    [2, 12],
-    [20, 26],
-    [17, 21],
-    [19, 22],
-    [16, 22],
-    [11, 13],
-    [24, 30],
-    [7, 12],
-    [2, 6],
-    [21, 30],
-    [3, 7],
-    [24, 28],
-    [1, 4],
-  ]);
+  const findAllValidMathExpressions = function (data) {
+    let inputNumbers = data[0];
+    let target = data[1];
+  };
 
-  /*
   // go through all servers
   for (let i = 0; i < allServers.length; i++) {
     let server = allServers[i];
@@ -231,8 +339,31 @@ export async function main(ns) {
         if (success) {
           ns.tprint(`Solved Minimum Path Sum in a Triangle Contract: ${files[j]}`);
         }
+      } else if (contractType == "Merge Overlapping Intervals") {
+        let solution = mergeOverlappingIntervals(ns.codingcontract.getData(files[j], server));
+        let success = ns.codingcontract.attempt(solution, files[j], server);
+        if (success) {
+          ns.tprint(`Solved Merge Overlapping Intervals Contract: ${files[j]}`);
+        }
+      } else if (contractType == "Unique Paths in a Grid I") {
+        let solution = uniquePaths(ns.codingcontract.getData(files[j], server));
+        let success = ns.codingcontract.attempt(solution, files[j], server);
+        if (success) {
+          ns.tprint(`Solved Unique Paths in a Grid I Contract: ${files[j]}`);
+        }
+      } else if (contractType == "Spiralize Matrix") {
+        let solution = spiralizeMatrix(ns.codingcontract.getData(files[j], server));
+        let success = ns.codingcontract.attempt(solution, files[j], server);
+        if (success) {
+          ns.tprint(`Solved Spiralize Matrix Contract: ${files[j]}`);
+        }
+      } else if (contractType == "Generate IP Addresses") {
+        let solution = generateIPAddresses(ns.codingcontract.getData(files[j], server));
+        let success = ns.codingcontract.attempt(solution, files[j], server);
+        if (success) {
+          ns.tprint(`Solved Generate IP Addresses Contract: ${files[j]}`);
+        }
       }
     }
   }
-  */
 }
