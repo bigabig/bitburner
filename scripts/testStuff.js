@@ -12,8 +12,8 @@ export async function main(ns) {
   DEBUG && ns.tprint(hackTime);
 
   // grow to max money
-  // let growThreads = Math.ceil(ns.growthAnalyze(target, 2.1));
-  let growThreads = Math.ceil(ns.growthAnalyze(target, ns.getServerMaxMoney(target) / ns.getServerMoneyAvailable(target)));
+  let growThreads = Math.ceil(ns.growthAnalyze(target, 2.5));
+  // let growThreads = Math.ceil(ns.growthAnalyze(target, ns.getServerMaxMoney(target) / ns.getServerMoneyAvailable(target)));
   DEBUG && ns.tprint(growThreads);
   let growSecurityIncrease = ns.growthAnalyzeSecurity(growThreads);
 
@@ -25,7 +25,7 @@ export async function main(ns) {
   DEBUG && ns.tprint(weakenThreads);
 
   // hack 50% of money
-  let hackThreads = Math.max(1, Math.ceil(0.5 / ns.hackAnalyze(target)));
+  let hackThreads = Math.max(1, Math.floor(0.5 / ns.hackAnalyze(target)));
   DEBUG && ns.tprint(hackThreads);
   let hackSecurityIncrease = ns.hackAnalyzeSecurity(hackThreads);
 
